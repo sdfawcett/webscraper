@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "puppeteer": "^22.10.0"
+  },
+  "name": "web-scraping",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module"
+}
