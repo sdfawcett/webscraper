@@ -25,6 +25,7 @@ main();*/
 
 // import the required library
 import puppeteer from "puppeteer";
+import fs from "fs";
  
 async function scrapeExercises(page) {
     // use page.$$ to find all matching elements on the current page
@@ -49,6 +50,12 @@ async function scrapeExercises(page) {
             return { title, description, url }
          });
       });
+
+          //get JSON
+    fs.writeFile('./file-output/exercises2.json', JSON.stringify(allExercises), (err) => {
+        if (err) throw err;
+        console.log('file saved');
+    });
    
       console.log(allExercises);
     } else {
@@ -57,8 +64,8 @@ async function scrapeExercises(page) {
 }
  
 (async () => {
-    // launch the headless browser instance
-    const browser = await puppeteer.launch({ headless: 'new' });
+    // launch the browser instance
+    const browser = await puppeteer.launch({ headless: 'false' });
  
     // create a new page instance
     const page = await browser.newPage();
@@ -68,13 +75,34 @@ async function scrapeExercises(page) {
  
     // call the function to scrape products on the current page
     await scrapeExercises(page);
+
+    //take a screenshot of the page
+    //await page.screenshot({path: './screens/trainwell-exercises.jpg'});
+
+    await page.click('a.w-pagination-next');
  
+    /*await Promise.all([
+        page.waitForNavigation(),
+        page.click('a.w-pagination-next')
+    ]);*/
+
+    //take a screenshot of the page
+    //await page.screenshot({ path: './screens/trainwell-full.jpg', fullPage: true });
+
+    //take a pdf of the page
+    //await page.pdf({ path: './screens/trainwell-full.pdf', format: 'A4' });
+
+    //get html of page
+    const html = await page.content();
+    //console.log(html);
+
+
     // set last page reached to false
     let lastPageReached = false;
  
     // keep scraping if not the last page
     while (!lastPageReached) {
-        const nextPageLink = await page.$('.w-pagination-next');
+        const nextPageLink = await page.$('a.w-pagination-next');
  
         if (!nextPageLink) {
             console.log('No more pages. Exiting.');
@@ -84,8 +112,18 @@ async function scrapeExercises(page) {
             await nextPageLink.click();
  
             // wait for navigation to complete
-            await page.waitForNavigation();
+            //await page.waitForNavigation();
+
+            // wait for button to exist
+            //await page.waitForSelector();
  
+            //take a screenshot of page
+            //await page.screenshot({path: './screens/trainwell-exercises.jpg'});
+
+            //get html of page
+            const html = await page.content();
+            //console.log(html);
+
             // track the current URL
             const URL = page.url();
             console.log(URL);
@@ -94,6 +132,11 @@ async function scrapeExercises(page) {
             await scrapeExercises(page);
         }
     }
+
+    /*fs.writeFile('./file-output/exercises2.txt', exercises, (err) => {
+        if (err) throw err;
+        console.log('text file saved');
+    });*/
  
     // close the browser
     await browser.close();
